@@ -1,3 +1,5 @@
+library(tidyr)
+library(dplyr)
 
 download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", destfile = "./data/Dataset.zip")
 
@@ -31,7 +33,7 @@ colnames(full_sets) <- full_sets.valid_name
 # 3.Uses descriptive activity names to name the activities in the data set
 
 
-sub_sets <- select(full_sets, subject_id, activity_labels, contains("mean"), contains("std"))
+sub_sets <- select(full_sets, subject_id, activity_labels, contains(".mean."), contains(".std."))
 
 # 4.Appropriately labels the data set with descriptive variable names.
 sub_sets$activity_labels <- activity_labels[ sub_sets$activity_labels, 'V2']
@@ -40,7 +42,8 @@ sub_sets$activity_labels <- activity_labels[ sub_sets$activity_labels, 'V2']
 # 5.From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 tidy_set <- sub_sets %>% 
-  group_by(subject_id, activity_labels) %>% 
+  gather(Var, Value, -subject_id, -activity_labels) %>%
+  group_by(subject_id, activity_labels, Var) %>% 
   summarize_each(funs(mean))
 
 
